@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -30,7 +31,7 @@ export default function JobCard({ job }: JobCardProps) {
 
   return (
     <Link href={`/jobs/${job.id}`} className="block group">
-      <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
+      <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 flex flex-col">
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
@@ -64,7 +65,7 @@ export default function JobCard({ job }: JobCardProps) {
             </div>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-grow">
           <p className="text-sm text-muted-foreground line-clamp-3">
             {job.description}
           </p>
