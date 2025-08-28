@@ -1,3 +1,4 @@
+
 import { allJobs } from '@/lib/jobs';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -18,18 +19,11 @@ async function getJob(id: string): Promise<Job | null> {
         if (jobSnap.exists()) {
             return { id: jobSnap.id, ...jobSnap.data() } as Job;
         }
-
-        // Fallback to static jobs if not in Firestore
-        const staticJob = allJobs.find((j) => j.id === id);
-        if (staticJob) return staticJob;
-
         return null;
 
     } catch (error) {
         console.error("Error fetching job:", error);
-        // Fallback to static jobs on error
-        const staticJob = allJobs.find((j) => j.id === id);
-        return staticJob || null;
+        return null;
     }
 }
 

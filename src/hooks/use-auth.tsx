@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           router.push('/recruiter-dashboard');
           break;
         default:
-          router.push('/');
+          router.push('/home');
           break;
       }
 
@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Đã đăng xuất",
         description: "Bạn đã đăng xuất thành công.",
       });
-      router.push('/');
+      router.push('/home');
     } catch (error) {
       console.error("Lỗi đăng xuất:", error);
       toast({

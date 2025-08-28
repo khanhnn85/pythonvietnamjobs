@@ -38,7 +38,7 @@ export default function PostJobPage() {
                             Bạn phải là nhà tuyển dụng đã được duyệt để đăng tin tuyển dụng.
                         </p>
                         <Button asChild>
-                            <Link href="/">Quay về trang chủ</Link>
+                            <Link href="/home">Quay về trang chủ</Link>
                         </Button>
                     </CardContent>
                 </Card>

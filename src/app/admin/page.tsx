@@ -99,7 +99,7 @@ export default function AdminPage() {
                             Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tư cách quản trị viên.
                         </p>
                         <Button asChild className="mt-4">
-                            <Link href="/">Quay về trang chủ</Link>
+                            <Link href="/home">Quay về trang chủ</Link>
                         </Button>
                     </CardContent>
                 </Card>

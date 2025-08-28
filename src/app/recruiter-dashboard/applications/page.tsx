@@ -80,7 +80,7 @@ export default function ApplicationsPage() {
                             Bạn phải là một nhà tuyển dụng đã được duyệt để xem trang này.
                         </p>
                         <Button asChild>
-                            <Link href="/">Quay về trang chủ</Link>
+                            <Link href="/home">Quay về trang chủ</Link>
                         </Button>
                     </CardContent>
                 </Card>

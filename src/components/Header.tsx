@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck, LifeBuoy, BookOpen } from 'lucide-react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck, LifeBuoy, BookOpen, Home } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const navLinks = [
+  { href: '/home', label: 'Trang chủ', icon: Home },
   { href: '/', label: 'Tất cả việc làm', icon: Briefcase },
   { href: '/blog', label: 'Blog', icon: BookOpen },
   { href: '/guide', label: 'Hướng dẫn', icon: LifeBuoy },
@@ -30,7 +31,7 @@ const navLinks = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2">
+    <Link href="/home" className="flex items-center gap-2">
       <Code2 className="h-8 w-8 text-primary" />
       <span className="text-xl font-bold tracking-tight">Python Viet Nam Jobs</span>
     </Link>
@@ -39,7 +40,7 @@ function Logo() {
 
 function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: string; label: string; icon: React.ElementType, isRecruiterLink?: boolean }) {
   const pathname = usePathname();
-  const isActive = pathname.startsWith(href) && (href !== '/' || pathname === '/');
+  const isActive = (href === '/home' && pathname === '/home') || (href !== '/home' && pathname === href) || (href === '/' && pathname === '/');
   const { user } = useAuth();
   
   if (isRecruiterLink && (!user || user.role !== 'recruiter')) {

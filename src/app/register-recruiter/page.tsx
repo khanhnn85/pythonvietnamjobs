@@ -38,7 +38,7 @@ export default function RegisterRecruiterPage() {
                             Bạn cần đăng nhập để có thể đăng ký làm nhà tuyển dụng.
                         </p>
                         <Button asChild>
-                            <Link href="/">Quay về trang chủ</Link>
+                            <Link href="/home">Quay về trang chủ</Link>
                         </Button>
                     </CardContent>
                 </Card>
