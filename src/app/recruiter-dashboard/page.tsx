@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useEffect, useState, useMemo } from 'react';
 import type { Job } from '@/lib/jobs';
-import { PlusCircle, Eye } from 'lucide-react';
+import { PlusCircle, Eye, Users } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 interface Application {
     id: string;
@@ -37,7 +37,7 @@ export default function RecruiterDashboardPage() {
             querySnapshot.forEach((doc) => {
                 jobs.push({ id: doc.id, ...doc.data() } as Job);
             });
-            jobs.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+            jobs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
             setPostedJobs(jobs);
             setIsLoadingJobs(false);
         });
@@ -110,12 +110,20 @@ export default function RecruiterDashboardPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Bảng điều khiển Nhà tuyển dụng</h1>
                     <p className="text-muted-foreground">Quản lý tin đăng và ứng viên của bạn.</p>
                 </div>
-                 <Button asChild>
-                    <Link href="/post-job">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Đăng tin mới
-                    </Link>
-                </Button>
+                 <div className="flex gap-2">
+                    <Button asChild>
+                        <Link href="/recruiter-dashboard/applications">
+                            <Users className="mr-2 h-4 w-4" />
+                            Xem ứng viên ({applications.length})
+                        </Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                        <Link href="/post-job">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Đăng tin mới
+                        </Link>
+                    </Button>
+                 </div>
             </div>
 
             <Card>
@@ -132,7 +140,7 @@ export default function RecruiterDashboardPage() {
                                 <TableRow>
                                     <TableHead>Chức danh</TableHead>
                                     <TableHead>Địa điểm</TableHead>
-                                    <TableHead className="text-center">Ứng viên</TableHead>
+                                    <TableHead className="text-center">Số ứng viên</TableHead>
                                     <TableHead className="text-right">Hành động</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -157,7 +165,15 @@ export default function RecruiterDashboardPage() {
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-sm text-muted-foreground text-center py-8">Bạn chưa đăng tin tuyển dụng nào.</p>
+                         <div className="text-center py-10">
+                            <p className="text-muted-foreground mb-4">Bạn chưa đăng tin tuyển dụng nào.</p>
+                             <Button asChild>
+                                <Link href="/post-job">
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Đăng tin đầu tiên
+                                </Link>
+                            </Button>
+                        </div>
                     )}
                 </CardContent>
             </Card>
