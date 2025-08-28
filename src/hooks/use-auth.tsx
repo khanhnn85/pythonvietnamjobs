@@ -15,11 +15,19 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { useToast } from "./use-toast";
 
+// --- QUAN TRỌNG: Đây là danh sách email admin được mô phỏng ---
+const ADMIN_EMAILS = ['admin.vnjobshub@example.com', 'khanhnnvn@gmail.com'];
+
+interface AppUser extends User {
+    role?: 'admin' | 'recruiter' | 'user';
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
@@ -28,16 +36,42 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      // Optional: If you want the "request submitted" status to clear when a different user logs in
-      // you could add logic here to check if the user ID has changed and clear localStorage.
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userRef = doc(db, "users", firebaseUser.uid);
+        
+        // Listen for real-time updates to the user's document
+        const unsubSnapshot = onSnapshot(userRef, async (docSnap) => {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                setUser({ ...firebaseUser, role: userData.role });
+            } else {
+                // Document doesn't exist, create it
+                const isUserAdmin = ADMIN_EMAILS.includes(firebaseUser.email ?? '');
+                const initialRole = isUserAdmin ? 'admin' : 'user';
+                await setDoc(userRef, {
+                    email: firebaseUser.email,
+                    displayName: firebaseUser.displayName,
+                    photoURL: firebaseUser.photoURL,
+                    role: initialRole
+                });
+                setUser({ ...firebaseUser, role: initialRole });
+            }
+        });
+
+        setLoading(false);
+        // Return a function to cleanup the snapshot listener
+        return () => unsubSnapshot();
+
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
@@ -64,9 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOutUser = async () => {
     try {
       await signOut(auth);
-      // Note: We are not clearing localStorage here, so the 'request sent' status
-      // will persist even after logging out and back in with the same account.
-      // This is usually the desired behavior.
       toast({
         title: "Đã đăng xuất",
         description: "Bạn đã đăng xuất thành công.",

@@ -5,20 +5,10 @@ import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEffect, useState } from 'react';
 import PostJobForm from '@/components/PostJobForm';
-
-const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
 
 export default function PostJobPage() {
     const { user, loading } = useAuth();
-    const [recruiterStatus, setRecruiterStatus] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setRecruiterStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
-        }
-    }, []);
     
     if (loading) {
         return (
@@ -36,7 +26,7 @@ export default function PostJobPage() {
         )
     }
 
-    if (!user || recruiterStatus !== 'approved') {
+    if (!user || user.role !== 'recruiter') {
         return (
             <div className="max-w-2xl mx-auto text-center">
                 <Card>

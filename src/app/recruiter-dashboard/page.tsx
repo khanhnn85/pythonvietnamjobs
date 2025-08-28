@@ -6,47 +6,39 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import { type Job } from '@/lib/jobs';
+import type { Job } from '@/lib/jobs';
 import { PlusCircle, Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
-const POSTED_JOBS_KEY = 'postedJobs';
+import { db } from '@/lib/firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export default function RecruiterDashboardPage() {
     const { user, loading } = useAuth();
-    const [recruiterStatus, setRecruiterStatus] = useState<string | null>(null);
     const [postedJobs, setPostedJobs] = useState<Job[]>([]);
+    const [isLoadingJobs, setIsLoadingJobs] = useState(true);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const status = localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY);
-            setRecruiterStatus(status);
-            
-            const loadPostedJobs = () => {
-                const jobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
-                if (jobsRaw) {
-                    setPostedJobs(JSON.parse(jobsRaw));
-                }
-            };
+        if (!user || user.role !== 'recruiter') {
+            setIsLoadingJobs(false);
+            return;
+        };
 
-            if (status === 'approved') {
-                loadPostedJobs();
-                // Listen for new jobs being posted from another tab/window
-                window.addEventListener('storage', (e) => {
-                    if (e.key === POSTED_JOBS_KEY) {
-                        loadPostedJobs();
-                    }
-                });
-                // Listen for new jobs being posted from the same tab
-                window.addEventListener('jobsUpdated', loadPostedJobs);
+        const q = query(collection(db, "jobs"), where("recruiterId", "==", user.uid));
 
-                return () => {
-                    window.removeEventListener('jobsUpdated', loadPostedJobs);
-                }
-            }
-        }
-    }, []);
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const jobs: Job[] = [];
+            querySnapshot.forEach((doc) => {
+                jobs.push({ id: doc.id, ...doc.data() } as Job);
+            });
+             // Sort by creation date, newest first
+            jobs.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+            setPostedJobs(jobs);
+            setIsLoadingJobs(false);
+        });
+
+        return () => unsubscribe();
+
+    }, [user]);
 
     if (loading) {
         return (
@@ -64,7 +56,7 @@ export default function RecruiterDashboardPage() {
         )
     }
 
-    if (!user || recruiterStatus !== 'approved') {
+    if (!user || user.role !== 'recruiter') {
         return (
             <div className="max-w-2xl mx-auto text-center">
                 <Card>
@@ -105,7 +97,9 @@ export default function RecruiterDashboardPage() {
                     <CardDescription>Đây là danh sách các công việc bạn đã đăng.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     {postedJobs.length > 0 ? (
+                     {isLoadingJobs ? (
+                         <p className="text-sm text-muted-foreground text-center py-8">Đang tải tin tuyển dụng...</p>
+                     ) : postedJobs.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -143,4 +137,3 @@ export default function RecruiterDashboardPage() {
         </div>
     );
 }
-

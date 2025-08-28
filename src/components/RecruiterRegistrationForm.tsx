@@ -19,6 +19,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, where, getDocs, doc, onSnapshot } from 'firebase/firestore';
 
 const formSchema = z.object({
     companyName: z.string().min(2, {
@@ -32,16 +35,37 @@ const formSchema = z.object({
     }),
 });
 
-const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
 
 export default function RecruiterRegistrationForm() {
     const { toast } = useToast();
-    const [requestStatus, setRequestStatus] = useState<string | null>(null);
+    const { user } = useAuth();
+    const [requestStatus, setRequestStatus] = useState<'approved' | 'pending' | 'new' | 'loading'>('loading');
 
     useEffect(() => {
-        const status = localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY);
-        setRequestStatus(status);
-    }, []);
+        if (!user) return;
+
+        const q = query(collection(db, "recruiterRequests"), where("userId", "==", user.uid));
+        
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const docData = querySnapshot.docs[0].data();
+                setRequestStatus(docData.status);
+            } else {
+                 // Also check the user's role directly
+                if (user.role === 'recruiter') {
+                    setRequestStatus('approved');
+                } else {
+                    setRequestStatus('new');
+                }
+            }
+        }, (error) => {
+            console.error("Error fetching recruiter request status: ", error);
+            setRequestStatus('new');
+        });
+
+        return () => unsubscribe();
+
+    }, [user]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -52,23 +76,55 @@ export default function RecruiterRegistrationForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log('Recruiter registration submitted:', values);
-        
-        localStorage.setItem(RECRUITER_REQUEST_STATUS_KEY, 'pending');
-        setRequestStatus('pending');
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+             toast({
+                title: 'Lỗi',
+                description: "Bạn phải đăng nhập để gửi yêu cầu.",
+                variant: 'destructive',
+            });
+            return;
+        }
 
-        // Dispatch a custom event to notify other components (like the Header) of the change
-        window.dispatchEvent(new CustomEvent('recruiterStatusChanged'));
+        try {
+            await addDoc(collection(db, "recruiterRequests"), {
+                userId: user.uid,
+                userEmail: user.email,
+                companyName: values.companyName,
+                website: values.website,
+                reason: values.reason,
+                status: 'pending', // 'pending', 'approved', 'rejected'
+                submittedAt: new Date(),
+            });
 
-        toast({
-            title: 'Yêu cầu đã được gửi!',
-            description: "Cảm ơn bạn đã đăng ký. Yêu cầu của bạn đang ở trạng thái 'chờ duyệt'. Chúng tôi sẽ xem xét và phản hồi sớm.",
-        });
-        form.reset();
+            setRequestStatus('pending');
+            toast({
+                title: 'Yêu cầu đã được gửi!',
+                description: "Cảm ơn bạn đã đăng ký. Chúng tôi sẽ xem xét và phản hồi sớm.",
+            });
+            form.reset();
+
+        } catch (e) {
+            console.error("Error adding document: ", e);
+             toast({
+                title: 'Gửi yêu cầu thất bại',
+                description: "Đã có lỗi xảy ra. Vui lòng thử lại.",
+                variant: "destructive",
+            });
+        }
+    }
+    
+    if (requestStatus === 'loading') {
+        return (
+            <Card>
+                <CardContent className="p-6">
+                    <div className="h-24 bg-muted rounded animate-pulse"></div>
+                </CardContent>
+            </Card>
+        )
     }
 
-    if (requestStatus === 'approved') {
+    if (requestStatus === 'approved' || user?.role === 'recruiter') {
         return (
              <Card>
                 <CardContent className="p-6 text-center">
@@ -142,7 +198,9 @@ export default function RecruiterRegistrationForm() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" size="lg">Gửi yêu cầu</Button>
+                        <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
+                             {form.formState.isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                        </Button>
                     </form>
                 </Form>
             </CardContent>

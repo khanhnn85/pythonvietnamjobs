@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition, useEffect } from 'react';
@@ -7,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import JobList from '@/components/JobList';
 import { filterJobs } from '@/app/actions';
-
-const POSTED_JOBS_KEY = 'postedJobs';
+import { db } from '@/lib/firebase';
+import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 
 interface JobListingPageProps {
-  initialJobs: Job[];
+  initialJobs: Job[]; // Keep initial jobs for SEO and initial load
 }
 
 export default function JobListingPage({ initialJobs }: JobListingPageProps) {
@@ -19,37 +20,40 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>(initialJobs);
   const [searchQuery, setSearchQuery] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadJobs = () => {
-      const jobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
-      const postedJobs = jobsRaw ? JSON.parse(jobsRaw) : [];
-      const combinedJobs = [...postedJobs, ...initialJobs];
-      
-      // Remove duplicates, preferring the one from postedJobs (which is newer)
-      const uniqueJobs = Array.from(new Map(combinedJobs.map(job => [job.id, job])).values());
+    // Fetch all jobs from Firestore
+    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
 
-      setAllJobs(uniqueJobs);
-      setDisplayedJobs(uniqueJobs);
-    };
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const jobsFromFirestore: Job[] = [];
+        querySnapshot.forEach((doc) => {
+            jobsFromFirestore.push({ id: doc.id, ...doc.data() } as Job);
+        });
 
-    loadJobs();
+        // Combine firestore jobs with initial static jobs, ensuring no duplicates
+        const combinedJobs = [...jobsFromFirestore];
+        const initialJobIds = new Set(jobsFromFirestore.map(j => j.id));
+        initialJobs.forEach(job => {
+            if (!initialJobIds.has(job.id)) {
+                combinedJobs.push(job);
+            }
+        })
 
-    const handleStorageUpdate = (e: StorageEvent) => {
-        if (e.key === POSTED_JOBS_KEY) {
-            loadJobs();
-        }
-    };
-    
-    // Listen for jobs updated from PostJobForm in the same tab
-    window.addEventListener('jobsUpdated', loadJobs);
-    // Listen for changes from other tabs
-    window.addEventListener('storage', handleStorageUpdate);
+        setAllJobs(combinedJobs);
+        setDisplayedJobs(combinedJobs);
+        setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching jobs from Firestore: ", error);
+        // Fallback to initial jobs on error
+        setAllJobs(initialJobs);
+        setDisplayedJobs(initialJobs);
+        setIsLoading(false);
+    });
 
-    return () => {
-        window.removeEventListener('jobsUpdated', loadJobs);
-        window.removeEventListener('storage', handleStorageUpdate);
-    };
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, [initialJobs]);
 
 
@@ -86,13 +90,13 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button type="submit" size="lg" disabled={isPending}>
+          <Button type="submit" size="lg" disabled={isPending || isLoading}>
             {isPending ? 'Đang tìm...' : 'Tìm việc'}
           </Button>
         </form>
       </div>
 
-      <JobList jobs={displayedJobs} isLoading={isPending} />
+      <JobList jobs={displayedJobs} isLoading={isPending || isLoading} />
     </div>
   );
 }

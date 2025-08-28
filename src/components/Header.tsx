@@ -28,10 +28,6 @@ const navLinks = [
   { href: '/contact', label: 'Liên hệ', icon: Mail },
 ];
 
-const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
-const ADMIN_EMAILS = ['admin.vnjobshub@example.com', 'khanhnnvn@gmail.com'];
-
-
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2">
@@ -46,7 +42,7 @@ function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: s
   const isActive = pathname === href;
   const { user } = useAuth();
   
-  if (isRecruiterLink && !user) {
+  if (isRecruiterLink && (!user || user.role !== 'recruiter')) {
     return null;
   }
 
@@ -69,31 +65,10 @@ function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: s
 
 function AuthNav() {
     const { user, signInWithGoogle, signOutUser } = useAuth();
-    const [requestStatus, setRequestStatus] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const updateStatus = () => {
-                setRequestStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
-            }
-            updateStatus();
-
-            window.addEventListener('storage', updateStatus);
-            // Custom event to handle status changes within the same tab
-            window.addEventListener('recruiterStatusChanged', updateStatus);
-
-
-            return () => {
-                window.removeEventListener('storage', updateStatus);
-                window.removeEventListener('recruiterStatusChanged', updateStatus);
-            };
-        }
-    }, [user]); // Rerun when user logs in/out
 
     if (user) {
-      const isRequestPending = requestStatus === 'pending';
-      const isRecruiter = requestStatus === 'approved';
-      const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
+      const isRecruiter = user.role === 'recruiter';
+      const isAdmin = user.role === 'admin';
 
       return (
         <DropdownMenu>
@@ -141,17 +116,13 @@ function AuthNav() {
                  </DropdownMenuItem>
               </>
             ) : (
-                <DropdownMenuItem asChild disabled={isRequestPending}>
-                <Link href="/register-recruiter" className={cn(isRequestPending && "cursor-not-allowed")}>
-                    {isRequestPending ? (
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                    ) : (
+                // Show register button only if user is not admin and not recruiter
+                !isAdmin &&
+                <DropdownMenuItem asChild>
+                    <Link href="/register-recruiter">
                         <Send className="mr-2 h-4 w-4" />
-                    )}
-                    <span>
-                        {isRequestPending ? 'Đã gửi yêu cầu' : 'Đăng ký làm nhà tuyển dụng'}
-                    </span>
-                </Link>
+                        <span>Đăng ký làm nhà tuyển dụng</span>
+                    </Link>
                 </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />

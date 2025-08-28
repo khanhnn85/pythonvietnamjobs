@@ -2,8 +2,11 @@ import type { JobPosting } from '@/ai/flows/filter-jobs';
 
 export interface Job extends JobPosting {
   id: string;
+  [key: string]: any; // Allow other properties like createdAt, recruiterId etc. from firestore
 }
 
+// This is now a static fallback and a source for initial SEO data.
+// The primary source of truth will be Firestore.
 export const allJobs: Job[] = [
   {
     id: '1',

@@ -18,7 +18,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import type { Job } from '@/lib/jobs';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
     title: z.string().min(5, { message: 'Chức danh phải có ít nhất 5 ký tự.' }),
@@ -29,11 +31,10 @@ const formSchema = z.object({
     requirements: z.string().min(20, { message: 'Yêu cầu phải có ít nhất 20 ký tự.' }),
 });
 
-const POSTED_JOBS_KEY = 'postedJobs';
-
 export default function PostJobForm() {
     const { toast } = useToast();
     const router = useRouter();
+    const { user } = useAuth();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -47,36 +48,33 @@ export default function PostJobForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log('Job posted (simulation):', values);
-        
-        try {
-            const existingJobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
-            const existingJobs: Job[] = existingJobsRaw ? JSON.parse(existingJobsRaw) : [];
-            
-            const newJob: Job = {
-                id: `job-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                ...values
-            };
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast({ title: "Lỗi", description: "Bạn phải đăng nhập để đăng tin.", variant: "destructive" });
+            return;
+        }
 
-            existingJobs.unshift(newJob); // Add new job to the beginning of the list
-            localStorage.setItem(POSTED_JOBS_KEY, JSON.stringify(existingJobs));
-            
-            // This is a global event that other components can listen to.
-            window.dispatchEvent(new CustomEvent('jobsUpdated'));
+        try {
+            await addDoc(collection(db, "jobs"), {
+                ...values,
+                recruiterId: user.uid,
+                recruiterEmail: user.email,
+                createdAt: new Date(),
+            });
+
+            toast({
+                title: 'Đăng tin thành công!',
+                description: "Tin tuyển dụng của bạn đã được đăng. Bạn sẽ được chuyển hướng đến Bảng điều khiển.",
+            });
+
+            setTimeout(() => {
+                router.push('/recruiter-dashboard');
+            }, 1500);
 
         } catch (error) {
-            console.error("Error saving job to localStorage", error);
+            console.error("Error adding job to Firestore", error);
+            toast({ title: "Lỗi", description: "Không thể đăng tin. Vui lòng thử lại.", variant: "destructive" });
         }
-        
-        toast({
-            title: 'Đăng tin thành công!',
-            description: "Tin tuyển dụng của bạn đã được đăng. Bạn sẽ được chuyển hướng đến Bảng điều khiển.",
-        });
-
-        setTimeout(() => {
-            router.push('/recruiter-dashboard');
-        }, 1500);
     }
 
     return (
@@ -183,4 +181,3 @@ export default function PostJobForm() {
         </Card>
     );
 }
-
