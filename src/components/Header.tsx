@@ -23,15 +23,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const navLinks = [
-  { href: '/home', label: 'Trang chủ', icon: Home },
-  { href: '/', label: 'Tất cả việc làm', icon: Briefcase },
+  { href: '/', label: 'Trang chủ', icon: Home },
+  { href: '/home', label: 'Tất cả việc làm', icon: Briefcase },
   { href: '/blog', label: 'Blog', icon: BookOpen },
   { href: '/guide', label: 'Hướng dẫn', icon: LifeBuoy },
 ];
 
 function Logo() {
   return (
-    <Link href="/home" className="flex items-center gap-2">
+    <Link href="/" className="flex items-center gap-2">
       <Code2 className="h-8 w-8 text-primary" />
       <span className="text-xl font-bold tracking-tight">Python Viet Nam Jobs</span>
     </Link>
@@ -40,7 +40,7 @@ function Logo() {
 
 function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: string; label: string; icon: React.ElementType, isRecruiterLink?: boolean }) {
   const pathname = usePathname();
-  const isActive = (href === '/home' && pathname === '/home') || (href !== '/home' && pathname === href) || (href === '/' && pathname === '/');
+  const isActive = (href === '/' && pathname === '/') || (href !== '/' && pathname.startsWith(href));
   const { user } = useAuth();
   
   if (isRecruiterLink && (!user || user.role !== 'recruiter')) {

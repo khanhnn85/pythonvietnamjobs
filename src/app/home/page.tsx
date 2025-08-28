@@ -1,5 +1,5 @@
-import JobListingPage from '@/components/JobListingPage';
+import JobSearchPage from '@/components/JobSearchPage';
 
 export default function HomePage() {
-  return <JobListingPage />;
+  return <JobSearchPage />;
 }
