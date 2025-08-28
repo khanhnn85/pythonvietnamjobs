@@ -14,10 +14,12 @@ import {
   GoogleAuthProvider,
   signOut,
   type User,
+  type UserCredential,
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { useToast } from "./use-toast";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 // --- QUAN TRỌNG: Đây là danh sách email admin được mô phỏng ---
 const ADMIN_EMAILS = ['admin.vnjobshub@example.com', 'khanhnnvn@gmail.com'];
@@ -29,7 +31,7 @@ interface AppUser extends User {
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (router: AppRouterInstance) => Promise<void>;
   signOutUser: () => Promise<void>;
 }
 
@@ -81,14 +83,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (router: AppRouterInstance) => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      const firebaseUser = userCredential.user;
+
       toast({
         title: "Đăng nhập thành công",
-        description: "Chào mừng bạn trở lại!",
+        description: "Đang chuyển hướng...",
       });
+
+      // Get user role from Firestore to redirect correctly
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const docSnap = await getDoc(userRef);
+
+      let userRole = 'user';
+      if (docSnap.exists()) {
+          userRole = docSnap.data().role;
+      } else {
+          // If the document doesn't exist yet, check admin emails
+          const isUserAdmin = ADMIN_EMAILS.includes(firebaseUser.email ?? '');
+          userRole = isUserAdmin ? 'admin' : 'user';
+      }
+
+      // Redirect based on role
+      switch (userRole) {
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'recruiter':
+          router.push('/recruiter-dashboard');
+          break;
+        default:
+          router.push('/');
+          break;
+      }
+
     } catch (error) {
       console.error("Lỗi đăng nhập bằng Google:", error);
       toast({

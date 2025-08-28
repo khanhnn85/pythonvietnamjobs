@@ -72,6 +72,10 @@ function AuthNav() {
         router.push('/');
     };
 
+    const handleSignIn = async () => {
+        await signInWithGoogle(router);
+    }
+
     if (user) {
       const isRecruiter = user.role === 'recruiter';
       const isAdmin = user.role === 'admin';
@@ -142,7 +146,7 @@ function AuthNav() {
     }
   
     return (
-      <Button onClick={signInWithGoogle}>
+      <Button onClick={handleSignIn}>
         Đăng nhập
       </Button>
     );
