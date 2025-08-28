@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Code2, Menu, Briefcase, Bookmark, Mail } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -69,6 +69,9 @@ function MobileNav() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-72">
+            <SheetHeader>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            </SheetHeader>
           <div className="p-4">
             <Logo />
             <nav className="mt-8 flex flex-col gap-2">
