@@ -23,7 +23,7 @@ export default function JobDetailClient({ job }: JobDetailClientProps) {
         <Button asChild variant="ghost" className="mb-4">
             <Link href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to all jobs
+                Quay lại tất cả công việc
             </Link>
         </Button>
 
@@ -60,20 +60,20 @@ export default function JobDetailClient({ job }: JobDetailClientProps) {
                   saved && 'fill-primary text-primary'
                 )}
               />
-              {saved ? 'Saved' : 'Save Job'}
+              {saved ? 'Đã lưu' : 'Lưu công việc'}
             </Button>
             <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 w-full sm:w-auto">
-                <a href="mailto:example@apply.com">Apply Now</a>
+                <a href="mailto:example@apply.com">Ứng tuyển ngay</a>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           <Separator className="my-6" />
           <div className="prose prose-quoteless prose-neutral dark:prose-invert max-w-none">
-            <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
+            <h2 className="text-2xl font-semibold mb-4">Mô tả công việc</h2>
             <p>{job.fullDescription}</p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">Requirements</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">Yêu cầu</h2>
             <p>{job.requirements}</p>
           </div>
         </CardContent>

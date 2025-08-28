@@ -34,15 +34,15 @@ export default function SavedJobsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight">Your Saved Jobs</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Công việc đã lưu của bạn</h1>
       {savedJobs.length > 0 ? (
         <JobList jobs={savedJobs} />
       ) : (
         <div className="flex flex-col items-center justify-center text-center py-16 px-6 rounded-lg bg-card border">
           <Bookmark className="w-16 h-16 text-muted-foreground" />
-          <h2 className="mt-4 text-2xl font-semibold">No Saved Jobs Yet</h2>
+          <h2 className="mt-4 text-2xl font-semibold">Chưa có công việc nào được lưu</h2>
           <p className="mt-2 text-muted-foreground">
-            Click the bookmark icon on a job to save it for later.
+            Nhấp vào biểu tượng dấu trang trên một công việc để lưu lại sau.
           </p>
         </div>
       )}

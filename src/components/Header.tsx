@@ -22,9 +22,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const navLinks = [
-  { href: '/', label: 'All Jobs', icon: Briefcase },
-  { href: '/saved-jobs', label: 'Saved Jobs', icon: Bookmark },
-  { href: '/contact', label: 'Contact', icon: Mail },
+  { href: '/', label: 'Tất cả việc làm', icon: Briefcase },
+  { href: '/saved-jobs', label: 'Việc làm đã lưu', icon: Bookmark },
+  { href: '/contact', label: 'Liên hệ', icon: Mail },
 ];
 
 function Logo() {
@@ -66,7 +66,7 @@ function AuthNav() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'Người dùng'} />
                 <AvatarFallback>
                     {user.displayName?.charAt(0).toUpperCase() ?? <User />}
                 </AvatarFallback>
@@ -85,7 +85,7 @@ function AuthNav() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOutUser}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>Đăng xuất</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -94,7 +94,7 @@ function AuthNav() {
   
     return (
       <Button onClick={signInWithGoogle}>
-        Login
+        Đăng nhập
       </Button>
     );
   }
@@ -118,13 +118,13 @@ function MobileNav() {
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">
             <Menu className="h-6 w-6" />
-            <span className="sr-only">Open navigation menu</span>
+            <span className="sr-only">Mở menu điều hướng</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0">
             <SheetHeader className="p-4 border-b">
                  <Logo />
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetTitle className="sr-only">Menu Điều hướng</SheetTitle>
             </SheetHeader>
           <div className="p-4">
             <nav className="mt-2 flex flex-col gap-2">

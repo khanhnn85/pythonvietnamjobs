@@ -19,15 +19,15 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
+    message: 'Tên phải có ít nhất 2 ký tự.',
   }),
   email: z.string().email({
-    message: 'Please enter a valid email address.',
+    message: 'Vui lòng nhập một địa chỉ email hợp lệ.',
   }),
   message: z.string().min(10, {
-    message: 'Message must be at least 10 characters.',
+    message: 'Tin nhắn phải có ít nhất 10 ký tự.',
   }).max(500, {
-    message: 'Message must not be longer than 500 characters.'
+    message: 'Tin nhắn không được dài hơn 500 ký tự.'
   }),
 });
 
@@ -45,8 +45,8 @@ export default function ContactForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('Form submitted:', values);
     toast({
-      title: 'Message Sent!',
-      description: "Thanks for reaching out. We'll get back to you soon.",
+      title: 'Đã gửi tin nhắn!',
+      description: "Cảm ơn đã liên hệ. Chúng tôi sẽ trả lời bạn sớm.",
     });
     form.reset();
   }
@@ -61,9 +61,9 @@ export default function ContactForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Name</FormLabel>
+                  <FormLabel>Tên của bạn</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Nguyễn Văn A" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -74,9 +74,9 @@ export default function ContactForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Email</FormLabel>
+                  <FormLabel>Email của bạn</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input placeholder="ban@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,10 +87,10 @@ export default function ContactForm() {
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Message</FormLabel>
+                  <FormLabel>Tin nhắn của bạn</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tell us how we can help..."
+                      placeholder="Hãy cho chúng tôi biết chúng tôi có thể giúp gì..."
                       className="min-h-[120px]"
                       {...field}
                     />
@@ -99,7 +99,7 @@ export default function ContactForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" size="lg">Send Message</Button>
+            <Button type="submit" className="w-full" size="lg">Gửi tin nhắn</Button>
           </form>
         </Form>
       </CardContent>

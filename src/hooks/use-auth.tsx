@@ -45,14 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithPopup(auth, provider);
       toast({
-        title: "Login Successful",
-        description: "Welcome back!",
+        title: "Đăng nhập thành công",
+        description: "Chào mừng bạn trở lại!",
       });
     } catch (error) {
-      console.error("Error signing in with Google:", error);
+      console.error("Lỗi đăng nhập bằng Google:", error);
       toast({
-        title: "Login Failed",
-        description: "Could not sign in with Google. Please try again.",
+        title: "Đăng nhập thất bại",
+        description: "Không thể đăng nhập bằng Google. Vui lòng thử lại.",
         variant: "destructive",
       });
     }
@@ -62,14 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signOut(auth);
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: "Đã đăng xuất",
+        description: "Bạn đã đăng xuất thành công.",
       });
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Lỗi đăng xuất:", error);
       toast({
-        title: "Logout Failed",
-        description: "Could not log out. Please try again.",
+        title: "Đăng xuất thất bại",
+        description: "Không thể đăng xuất. Vui lòng thử lại.",
         variant: "destructive",
       });
     }
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth phải được sử dụng trong một AuthProvider");
   }
   return context;
 };

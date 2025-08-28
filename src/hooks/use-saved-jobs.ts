@@ -16,7 +16,7 @@ export const useSavedJobs = () => {
         setSavedJobIds(JSON.parse(item));
       }
     } catch (error) {
-      console.error('Failed to read saved jobs from localStorage', error);
+      console.error('Không thể đọc các công việc đã lưu từ localStorage', error);
     }
   }, []);
 
@@ -25,7 +25,7 @@ export const useSavedJobs = () => {
       setSavedJobIds(ids);
       window.localStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(ids));
     } catch (error) {
-      console.error('Failed to save jobs to localStorage', error);
+      console.error('Không thể lưu công việc vào localStorage', error);
     }
   };
 
@@ -33,8 +33,8 @@ export const useSavedJobs = () => {
     const newSavedJobIds = [...savedJobIds, jobId];
     persistSavedJobs(newSavedJobIds);
     toast({
-      title: "Job Saved!",
-      description: "You can view your saved jobs on the 'Saved Jobs' page.",
+      title: "Đã lưu công việc!",
+      description: "Bạn có thể xem các công việc đã lưu của mình trên trang 'Việc làm đã lưu'.",
     });
   }, [savedJobIds, toast]);
 
@@ -42,8 +42,8 @@ export const useSavedJobs = () => {
     const newSavedJobIds = savedJobIds.filter((id) => id !== jobId);
     persistSavedJobs(newSavedJobIds);
     toast({
-      title: "Job Unsaved",
-      description: "The job has been removed from your saved list.",
+      title: "Đã bỏ lưu công việc",
+      description: "Công việc đã được xóa khỏi danh sách đã lưu của bạn.",
     });
   }, [savedJobIds, toast]);
 

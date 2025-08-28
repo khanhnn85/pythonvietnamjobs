@@ -32,9 +32,9 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
   return (
     <div className="space-y-8">
       <div className="p-8 rounded-lg bg-card border shadow-sm text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Find Your Dream Python Job</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Tìm công việc Python mơ ước của bạn</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Search for Python roles in Ho Chi Minh City, Hanoi, Da Nang, and more.
+          Tìm kiếm các vị trí Python ở TP. Hồ Chí Minh, Hà Nội, Đà Nẵng và hơn thế nữa.
         </p>
         <form
           onSubmit={handleSearch}
@@ -44,14 +44,14 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search by title, skill, or location..."
+              placeholder="Tìm kiếm theo chức danh, kỹ năng hoặc địa điểm..."
               className="pl-10 h-12 text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Button type="submit" size="lg" disabled={isPending}>
-            {isPending ? 'Searching...' : 'Search Jobs'}
+            {isPending ? 'Đang tìm...' : 'Tìm việc'}
           </Button>
         </form>
       </div>

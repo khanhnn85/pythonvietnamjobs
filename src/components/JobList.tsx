@@ -20,9 +20,9 @@ export default function JobList({ jobs, isLoading = false }: JobListProps) {
   if (jobs.length === 0) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-2xl font-semibold">No Jobs Found</h2>
+        <h2 className="text-2xl font-semibold">Không tìm thấy công việc</h2>
         <p className="mt-2 text-muted-foreground">
-          Try adjusting your search or check back later.
+          Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau.
         </p>
       </div>
     );

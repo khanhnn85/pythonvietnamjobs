@@ -6,7 +6,7 @@ import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
   title: 'VN Jobs Hub',
-  description: 'Find your next Python job in Vietnam.',
+  description: 'Tìm công việc Python tiếp theo của bạn tại Việt Nam.',
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html lang="vi" className="light" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

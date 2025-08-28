@@ -12,12 +12,12 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
 
   if (!job) {
     return {
-      title: 'Job Not Found',
+      title: 'Không tìm thấy công việc',
     };
   }
 
   return {
-    title: `${job.title} at ${job.company} | VN Jobs Hub`,
+    title: `${job.title} tại ${job.company} | VN Jobs Hub`,
     description: job.description,
   };
 }

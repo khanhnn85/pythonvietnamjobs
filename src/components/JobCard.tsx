@@ -41,7 +41,7 @@ export default function JobCard({ job }: JobCardProps) {
               size="icon"
               className="w-8 h-8 shrink-0"
               onClick={handleSaveClick}
-              aria-label={saved ? 'Unsave job' : 'Save job'}
+              aria-label={saved ? 'Bỏ lưu công việc' : 'Lưu công việc'}
             >
               <Bookmark
                 className={cn(
