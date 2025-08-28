@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -35,6 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
+      // Optional: If you want the "request submitted" status to clear when a different user logs in
+      // you could add logic here to check if the user ID has changed and clear localStorage.
     });
 
     return () => unsubscribe();
@@ -61,6 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOutUser = async () => {
     try {
       await signOut(auth);
+      // Note: We are not clearing localStorage here, so the 'request sent' status
+      // will persist even after logging out and back in with the same account.
+      // This is usually the desired behavior.
       toast({
         title: "Đã đăng xuất",
         description: "Bạn đã đăng xuất thành công.",

@@ -3,8 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -27,6 +27,9 @@ const navLinks = [
   { href: '/saved-jobs', label: 'Việc làm đã lưu', icon: Bookmark },
   { href: '/contact', label: 'Liên hệ', icon: Mail },
 ];
+
+const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
+
 
 function Logo() {
   return (
@@ -60,8 +63,27 @@ function NavLink({ href, label, icon: Icon }: { href: string; label: string; ico
 
 function AuthNav() {
     const { user, signInWithGoogle, signOutUser } = useAuth();
-  
+    const [requestStatus, setRequestStatus] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setRequestStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
+
+            const handleStorageChange = () => {
+                setRequestStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
+            };
+
+            window.addEventListener('storage', handleStorageChange);
+
+            return () => {
+                window.removeEventListener('storage', handleStorageChange);
+            };
+        }
+    }, [user]); // Rerun when user logs in/out
+
     if (user) {
+      const isRequestPending = requestStatus === 'pending';
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -84,14 +106,24 @@ function AuthNav() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/register-recruiter">
-                <Send className="mr-2 h-4 w-4" />
-                <span>Đăng ký làm nhà tuyển dụng</span>
+            <DropdownMenuItem asChild disabled={isRequestPending}>
+              <Link href="/register-recruiter" className={cn(isRequestPending && "cursor-not-allowed")}>
+                {isRequestPending ? (
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                ) : (
+                    <Send className="mr-2 h-4 w-4" />
+                )}
+                <span>
+                    {isRequestPending ? 'Đã gửi yêu cầu' : 'Đăng ký làm nhà tuyển dụng'}
+                </span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOutUser}>
+            <DropdownMenuItem onClick={() => {
+                // Clear request status on sign out if desired
+                // localStorage.removeItem(RECRUITER_REQUEST_STATUS_KEY);
+                signOutUser();
+            }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Đăng xuất</span>
             </DropdownMenuItem>

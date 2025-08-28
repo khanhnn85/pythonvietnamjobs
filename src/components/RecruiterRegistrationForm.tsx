@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -17,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
     companyName: z.string().min(2, {
@@ -30,8 +32,19 @@ const formSchema = z.object({
     }),
 });
 
+const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
+
 export default function RecruiterRegistrationForm() {
     const { toast } = useToast();
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
+    useEffect(() => {
+        const status = localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY);
+        if (status === 'pending') {
+            setIsSubmitted(true);
+        }
+    }, []);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -43,11 +56,28 @@ export default function RecruiterRegistrationForm() {
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         console.log('Recruiter registration submitted:', values);
+        
+        localStorage.setItem(RECRUITER_REQUEST_STATUS_KEY, 'pending');
+        setIsSubmitted(true);
+
         toast({
             title: 'Yêu cầu đã được gửi!',
             description: "Cảm ơn bạn đã đăng ký. Yêu cầu của bạn đang ở trạng thái 'chờ duyệt'. Chúng tôi sẽ xem xét và phản hồi sớm.",
         });
         form.reset();
+    }
+
+    if (isSubmitted) {
+        return (
+             <Card>
+                <CardContent className="p-6 text-center">
+                    <h3 className="text-xl font-semibold">Yêu cầu của bạn đã được gửi</h3>
+                    <p className="mt-2 text-muted-foreground">
+                        Chúng tôi đã nhận được thông tin đăng ký của bạn và sẽ xem xét sớm. Cảm ơn sự kiên nhẫn của bạn.
+                    </p>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (
