@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard } from 'lucide-react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -29,6 +29,7 @@ const navLinks = [
 ];
 
 const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
+const ADMIN_EMAIL = 'admin.vnjobshub@example.com'; 
 
 
 function Logo() {
@@ -92,6 +93,7 @@ function AuthNav() {
     if (user) {
       const isRequestPending = requestStatus === 'pending';
       const isRecruiter = requestStatus === 'approved';
+      const isAdmin = user.email === ADMIN_EMAIL;
 
       return (
         <DropdownMenu>
@@ -115,6 +117,14 @@ function AuthNav() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {isAdmin && (
+                 <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      <span>Trang Admin</span>
+                    </Link>
+                 </DropdownMenuItem>
+            )}
             {isRecruiter ? (
               <>
                  <DropdownMenuItem asChild>

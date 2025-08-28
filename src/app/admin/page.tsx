@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import Link from 'next/link';
+
+// --- QUAN TRỌNG: Đây là email admin được mô phỏng ---
+// Trong một ứng dụng thực tế, bạn sẽ quản lý quyền admin trong cơ sở dữ liệu.
+const ADMIN_EMAIL = 'admin.vnjobshub@example.com'; 
+
 
 // In a real application, this data would come from a database.
 const FAKE_REQUESTS = [
@@ -21,10 +28,9 @@ const FAKE_REQUESTS_KEY = 'fakeRecruiterRequests';
 export default function AdminPage() {
     const { toast } = useToast();
     const [requests, setRequests] = useState(FAKE_REQUESTS);
-    const [isClient, setIsClient] = useState(false);
-
+    const { user, loading } = useAuth();
+    
     useEffect(() => {
-        setIsClient(true);
         // In a real app, you'd fetch this from a secure backend.
         // Here, we use localStorage to make the status persistent for the demo.
         const storedRequests = localStorage.getItem(FAKE_REQUESTS_KEY);
@@ -56,9 +62,30 @@ export default function AdminPage() {
             description: `Trạng thái của ${approvedRequest?.companyName} đã được cập nhật.`,
         });
     };
-
-    if (!isClient) {
+    
+    if (loading) {
         return <div className="text-center p-8">Đang tải trang quản trị...</div>;
+    }
+
+    if (!user || user.email !== ADMIN_EMAIL) {
+        return (
+             <div className="max-w-2xl mx-auto text-center">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Truy cập bị từ chối</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="mb-4 text-muted-foreground">
+                            Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tư cách quản trị viên.
+                        </p>
+                         <p className="text-xs text-muted-foreground">Email quản trị viên mô phỏng: {ADMIN_EMAIL}</p>
+                        <Button asChild className="mt-4">
+                            <Link href="/">Quay về trang chủ</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (
