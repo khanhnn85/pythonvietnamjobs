@@ -64,6 +64,7 @@ export async function submitApplicationAction(applicationData: {
     email: string,
     phoneNumber: string,
     cvFileName: string,
+    cvUrl: string,
 }) {
     try {
         await addDoc(collection(db, "applications"), {

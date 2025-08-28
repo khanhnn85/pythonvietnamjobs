@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UploadCloud, CheckCircle, FileText } from 'lucide-react';
 import type { Job } from '@/lib/jobs';
 import { extractInfoFromCvAction, submitApplicationAction } from '@/app/actions';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ApplyDialogProps {
   job: Job;
@@ -92,29 +94,52 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
-       const result = await submitApplicationAction({
+       try {
+        // 1. Upload CV to Firebase Storage
+        const cvFile = values.cv;
+        // Sanitize file name
+        const sanitizedFileName = cvFile.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+        const cvPath = `cvs/${job.recruiterId}/${job.id}/${Date.now()}-${sanitizedFileName}`;
+        const storageRef = ref(storage, cvPath);
+        
+        await uploadBytes(storageRef, cvFile);
+
+        // 2. Get Download URL
+        const cvUrl = await getDownloadURL(storageRef);
+
+        // 3. Submit application with CV URL
+        const result = await submitApplicationAction({
             jobId: job.id,
             jobTitle: job.title,
             recruiterId: job.recruiterId,
             fullName: values.fullName,
             email: values.email,
             phoneNumber: values.phoneNumber,
-            cvFileName: values.cv.name,
-       });
+            cvFileName: cvFile.name,
+            cvUrl: cvUrl,
+        });
 
-       if (result.success) {
+        if (result.success) {
             toast({
                 title: 'Nộp đơn thành công!',
                 description: 'Đơn ứng tuyển của bạn đã được gửi đến nhà tuyển dụng.',
             });
             onOpenChange(false);
             form.reset();
-       } else {
+        } else {
             toast({
                 title: 'Nộp đơn thất bại',
                 description: result.error,
                 variant: 'destructive',
             });
+        }
+       } catch (error) {
+           console.error("Error during application submission:", error);
+           toast({
+               title: 'Lỗi',
+               description: "Đã xảy ra lỗi khi tải lên CV của bạn. Vui lòng thử lại.",
+               variant: 'destructive',
+           })
        }
     });
   };
@@ -144,7 +169,7 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
                             accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             onChange={handleCvChange}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            disabled={isProcessingCv}
+                            disabled={isProcessingCv || isSubmitting}
                         />
                          <label htmlFor="cv-upload" className={`flex items-center justify-center w-full h-32 px-4 border-2 border-dashed rounded-md cursor-pointer ${form.watch('cv') ? 'border-primary' : ''}`}>
                             {isProcessingCv ? (
@@ -179,7 +204,7 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
                 <FormItem>
                   <FormLabel>Họ và tên</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nguyễn Văn A" {...field} />
+                    <Input placeholder="Nguyễn Văn A" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,7 +217,7 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="ban@example.com" {...field} />
+                    <Input placeholder="ban@example.com" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,7 +230,7 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
                 <FormItem>
                   <FormLabel>Số điện thoại</FormLabel>
                   <FormControl>
-                    <Input placeholder="09xxxxxxxx" {...field} />
+                    <Input placeholder="09xxxxxxxx" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -214,9 +239,9 @@ export default function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogPr
 
             <DialogFooter>
                 <DialogClose asChild>
-                    <Button type="button" variant="ghost">Hủy</Button>
+                    <Button type="button" variant="ghost" disabled={isSubmitting}>Hủy</Button>
                 </DialogClose>
-                <Button type="submit" disabled={isSubmitting || isProcessingCv}>
+                <Button type="submit" disabled={isSubmitting || isProcessingCv || !form.watch('cv')}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Gửi đơn ứng tuyển
                 </Button>

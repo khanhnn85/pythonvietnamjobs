@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -20,6 +20,7 @@ interface Application {
     email: string;
     phoneNumber: string;
     cvFileName: string;
+    cvUrl: string;
     submittedAt: any;
 }
 
@@ -132,7 +133,14 @@ export default function ApplicationsPage() {
                                             <TableCell>{app.jobTitle}</TableCell>
                                             <TableCell>{app.email}</TableCell>
                                             <TableCell>{app.phoneNumber}</TableCell>
-                                            <TableCell className="text-muted-foreground">{app.cvFileName}</TableCell>
+                                            <TableCell>
+                                                <Button asChild variant="outline" size="sm">
+                                                    <a href={app.cvUrl} target="_blank" rel="noopener noreferrer" title={app.cvFileName}>
+                                                        Xem CV
+                                                        <ExternalLink className="ml-2 h-4 w-4" />
+                                                    </a>
+                                                </Button>
+                                            </TableCell>
                                             <TableCell>{app.submittedAt ? formatDistanceToNow(app.submittedAt.toDate(), { addSuffix: true, locale: vi }) : 'N/A'}</TableCell>
                                         </TableRow>
                                     ))
