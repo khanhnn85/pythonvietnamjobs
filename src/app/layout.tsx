@@ -5,8 +5,12 @@ import { Header } from '@/components/Header';
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'Python Viet Nam Jobs',
-  description: 'Tìm công việc Python tiếp theo của bạn tại Việt Nam.',
+  title: {
+    default: 'Việc làm Python Việt Nam | Python Viet Nam Jobs',
+    template: '%s | Python Viet Nam Jobs',
+  },
+  description: 'Nền tảng tìm kiếm việc làm Python hàng đầu tại Việt Nam. Kết nối cộng đồng lập trình Python Việt Nam với các cơ hội nghề nghiệp tốt nhất tại TP.HCM, Hà Nội, Đà Nẵng.',
+  keywords: ['Việc làm Python Việt Nam', 'Python Viet Nam Jobs', 'Lập trình Python Việt Nam', 'Cộng đồng Python Việt Nam', 'Tuyển dụng Python', 'Việc làm IT'],
 };
 
 export default function RootLayout({

@@ -44,8 +44,9 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
   }
 
   return {
-    title: `${job.title} tại ${job.company} | Python Viet Nam Jobs`,
-    description: job.description,
+    title: `Tuyển ${job.title} - ${job.company}`,
+    description: `Ứng tuyển vị trí ${job.title} tại ${job.company} ở ${job.location}. ${job.description}`,
+    keywords: [job.title, job.company, job.location, 'Việc làm Python', 'Lập trình Python', 'Tuyển dụng IT'],
   };
 }
 

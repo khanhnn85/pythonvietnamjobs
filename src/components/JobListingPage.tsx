@@ -63,9 +63,9 @@ export default function JobListingPage({}: JobListingPageProps) {
   return (
     <div className="space-y-8">
       <div className="p-8 rounded-lg bg-card border shadow-sm text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Tìm công việc Python mơ ước của bạn</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Cơ hội việc làm Python tại Việt Nam</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Tìm kiếm các vị trí Python ở TP. Hồ Chí Minh, Hà Nội, Đà Nẵng và hơn thế nữa.
+          Khám phá các vị trí tuyển dụng lập trình Python mới nhất từ cộng đồng Python Việt Nam.
         </p>
         <form
           onSubmit={handleSearch}
