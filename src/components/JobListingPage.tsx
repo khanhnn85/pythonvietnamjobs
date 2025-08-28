@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import BlogCard, { BlogCardSkeleton } from './BlogCard';
 import Link from 'next/link';
-import { JobCardSkeleton } from './JobCard';
+import JobCard, { JobCardSkeleton } from './JobCard';
 
 
 export default function JobListingPage() {
