@@ -9,9 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
 
-// --- QUAN TRỌNG: Đây là email admin được mô phỏng ---
+// --- QUAN TRỌNG: Đây là danh sách email admin được mô phỏng ---
 // Trong một ứng dụng thực tế, bạn sẽ quản lý quyền admin trong cơ sở dữ liệu.
-const ADMIN_EMAIL = 'admin.vnjobshub@example.com'; 
+const ADMIN_EMAILS = ['admin.vnjobshub@example.com', 'khanhnnvn@gmail.com'];
 
 
 // In a real application, this data would come from a database.
@@ -67,7 +67,7 @@ export default function AdminPage() {
         return <div className="text-center p-8">Đang tải trang quản trị...</div>;
     }
 
-    if (!user || user.email !== ADMIN_EMAIL) {
+    if (!user || !ADMIN_EMAILS.includes(user.email ?? '')) {
         return (
              <div className="max-w-2xl mx-auto text-center">
                 <Card>
@@ -78,7 +78,7 @@ export default function AdminPage() {
                         <p className="mb-4 text-muted-foreground">
                             Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tư cách quản trị viên.
                         </p>
-                         <p className="text-xs text-muted-foreground">Email quản trị viên mô phỏng: {ADMIN_EMAIL}</p>
+                         <p className="text-xs text-muted-foreground">Email quản trị viên mô phỏng: {ADMIN_EMAILS.join(', ')}</p>
                         <Button asChild className="mt-4">
                             <Link href="/">Quay về trang chủ</Link>
                         </Button>

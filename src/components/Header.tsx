@@ -29,7 +29,7 @@ const navLinks = [
 ];
 
 const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
-const ADMIN_EMAIL = 'admin.vnjobshub@example.com'; 
+const ADMIN_EMAILS = ['admin.vnjobshub@example.com', 'khanhnnvn@gmail.com'];
 
 
 function Logo() {
@@ -93,7 +93,7 @@ function AuthNav() {
     if (user) {
       const isRequestPending = requestStatus === 'pending';
       const isRecruiter = requestStatus === 'approved';
-      const isAdmin = user.email === ADMIN_EMAIL;
+      const isAdmin = user.email ? ADMIN_EMAILS.includes(user.email) : false;
 
       return (
         <DropdownMenu>
