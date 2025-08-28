@@ -5,7 +5,7 @@ import { filterJobsByRelevance } from '@/ai/flows/filter-jobs';
 import { extractCvInfo, type ExtractCvInfoOutput } from '@/ai/flows/extract-cv-info';
 import type { Job } from '@/lib/jobs';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, writeBatch, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, writeBatch, query, where, getDocs, doc } from 'firebase/firestore';
 import { seedBlogPosts } from '@/lib/blog-seed-data';
 import type { BlogPost } from '@/lib/blog';
 
@@ -91,7 +91,7 @@ export async function seedBlogDataAction(adminUserId: string, adminUserName: str
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                const docRef = doc(postsCollection);
+                const docRef = doc(collection(db, "blogPosts"));
                 const postData: Omit<BlogPost, 'id'> = {
                     ...post,
                     authorId: adminUserId,
