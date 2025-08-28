@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
+import type { Job } from '@/lib/jobs';
 
 const formSchema = z.object({
     title: z.string().min(5, { message: 'Chức danh phải có ít nhất 5 ký tự.' }),
@@ -27,6 +28,8 @@ const formSchema = z.object({
     fullDescription: z.string().min(50, { message: 'Mô tả đầy đủ phải có ít nhất 50 ký tự.' }),
     requirements: z.string().min(20, { message: 'Yêu cầu phải có ít nhất 20 ký tự.' }),
 });
+
+const POSTED_JOBS_KEY = 'postedJobs';
 
 export default function PostJobForm() {
     const { toast } = useToast();
@@ -47,15 +50,30 @@ export default function PostJobForm() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         console.log('Job posted (simulation):', values);
         
-        // In a real app, you would send this to your backend to save in the database.
-        // For now, we just show a success message and redirect.
+        try {
+            const existingJobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
+            const existingJobs: Job[] = existingJobsRaw ? JSON.parse(existingJobsRaw) : [];
+            
+            const newJob: Job = {
+                id: `job-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                ...values
+            };
+
+            existingJobs.unshift(newJob); // Add new job to the beginning of the list
+            localStorage.setItem(POSTED_JOBS_KEY, JSON.stringify(existingJobs));
+            
+            // This is a global event that other components can listen to.
+            window.dispatchEvent(new CustomEvent('jobsUpdated'));
+
+        } catch (error) {
+            console.error("Error saving job to localStorage", error);
+        }
         
         toast({
             title: 'Đăng tin thành công!',
             description: "Tin tuyển dụng của bạn đã được đăng. Bạn sẽ được chuyển hướng đến Bảng điều khiển.",
         });
 
-        // Redirect to dashboard after a short delay
         setTimeout(() => {
             router.push('/recruiter-dashboard');
         }, 1500);

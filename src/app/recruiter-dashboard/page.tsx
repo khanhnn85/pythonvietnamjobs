@@ -6,30 +6,44 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import { allJobs, type Job } from '@/lib/jobs';
+import { type Job } from '@/lib/jobs';
 import { PlusCircle, Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-
 const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
+const POSTED_JOBS_KEY = 'postedJobs';
 
 export default function RecruiterDashboardPage() {
     const { user, loading } = useAuth();
     const [recruiterStatus, setRecruiterStatus] = useState<string | null>(null);
-    
-    // Simulate fetching jobs posted by this recruiter. In a real app, this would be a DB query.
-    // For now, we'll just show some of the jobs as an example.
     const [postedJobs, setPostedJobs] = useState<Job[]>([]);
-
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const status = localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY);
             setRecruiterStatus(status);
             
+            const loadPostedJobs = () => {
+                const jobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
+                if (jobsRaw) {
+                    setPostedJobs(JSON.parse(jobsRaw));
+                }
+            };
+
             if (status === 'approved') {
-                // Simulate fetching jobs by this "recruiter". We'll just take a few.
-                setPostedJobs(allJobs.slice(0, 2));
+                loadPostedJobs();
+                // Listen for new jobs being posted from another tab/window
+                window.addEventListener('storage', (e) => {
+                    if (e.key === POSTED_JOBS_KEY) {
+                        loadPostedJobs();
+                    }
+                });
+                // Listen for new jobs being posted from the same tab
+                window.addEventListener('jobsUpdated', loadPostedJobs);
+
+                return () => {
+                    window.removeEventListener('jobsUpdated', loadPostedJobs);
+                }
             }
         }
     }, []);
@@ -110,9 +124,11 @@ export default function RecruiterDashboardPage() {
                                         <span className="font-medium">0</span>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" disabled>
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            Xem CV (sắp có)
+                                        <Button variant="outline" size="sm" asChild>
+                                            <Link href={`/jobs/${job.id}`}>
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                Xem tin
+                                            </Link>
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -127,3 +143,4 @@ export default function RecruiterDashboardPage() {
         </div>
     );
 }
+
