@@ -12,12 +12,12 @@ import { db } from '@/lib/firebase';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 
 interface JobListingPageProps {
-  initialJobs: Job[]; // Keep initial jobs for SEO and initial load
+  // initialJobs is no longer needed as we fetch exclusively from Firestore.
 }
 
-export default function JobListingPage({ initialJobs }: JobListingPageProps) {
-  const [allJobs, setAllJobs] = useState<Job[]>(initialJobs);
-  const [displayedJobs, setDisplayedJobs] = useState<Job[]>(initialJobs);
+export default function JobListingPage({}: JobListingPageProps) {
+  const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [displayedJobs, setDisplayedJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
@@ -32,29 +32,20 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
             jobsFromFirestore.push({ id: doc.id, ...doc.data() } as Job);
         });
 
-        // Combine firestore jobs with initial static jobs, ensuring no duplicates
-        const combinedJobs = [...jobsFromFirestore];
-        const initialJobIds = new Set(jobsFromFirestore.map(j => j.id));
-        initialJobs.forEach(job => {
-            if (!initialJobIds.has(job.id)) {
-                combinedJobs.push(job);
-            }
-        })
-
-        setAllJobs(combinedJobs);
-        setDisplayedJobs(combinedJobs);
+        setAllJobs(jobsFromFirestore);
+        setDisplayedJobs(jobsFromFirestore);
         setIsLoading(false);
     }, (error) => {
         console.error("Error fetching jobs from Firestore: ", error);
-        // Fallback to initial jobs on error
-        setAllJobs(initialJobs);
-        setDisplayedJobs(initialJobs);
+        // On error, show no jobs and stop loading.
+        setAllJobs([]);
+        setDisplayedJobs([]);
         setIsLoading(false);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [initialJobs]);
+  }, []);
 
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -96,7 +87,7 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
         </form>
       </div>
 
-      <JobList jobs={displayedJobs} isLoading={isPending || isLoading} />
+      <JobList jobs={displayedJobs} isLoading={isLoading} />
     </div>
   );
 }
