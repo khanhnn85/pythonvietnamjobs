@@ -18,13 +18,14 @@ export default function CategoryTabs() {
     const currentCategory = searchParams.get('category') || 'all';
 
     const handleTabChange = (value: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         if (value === 'all') {
             params.delete('category');
         } else {
             params.set('category', value);
         }
-        router.push(`${pathname}?${params.toString()}`);
+        // Use router.replace to avoid adding to history stack unnecessarily
+        router.replace(`${pathname}?${params.toString()}`);
     };
 
     return (
