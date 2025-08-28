@@ -54,13 +54,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // Document doesn't exist, create it
                 const isUserAdmin = ADMIN_EMAILS.includes(firebaseUser.email ?? '');
                 const initialRole = isUserAdmin ? 'admin' : 'user';
-                await setDoc(userRef, {
-                    email: firebaseUser.email,
-                    displayName: firebaseUser.displayName,
-                    photoURL: firebaseUser.photoURL,
-                    role: initialRole
-                });
-                setUser({ ...firebaseUser, role: initialRole });
+                try {
+                    await setDoc(userRef, {
+                        email: firebaseUser.email,
+                        displayName: firebaseUser.displayName,
+                        photoURL: firebaseUser.photoURL,
+                        role: initialRole
+                    });
+                    setUser({ ...firebaseUser, role: initialRole });
+                } catch (error) {
+                    console.error("Error creating user document:", error);
+                }
             }
         });
 
