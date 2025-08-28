@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, DatabaseZap } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, orderBy, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, doc, deleteDoc } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import type { BlogPost } from '@/lib/blog';
@@ -98,12 +98,20 @@ export default function BlogManagementPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Quản lý Blog</h1>
                     <p className="text-muted-foreground">Tạo, sửa và quản lý các bài viết.</p>
                 </div>
-                <Button asChild>
-                    <Link href="/admin/blog/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Viết bài mới
-                    </Link>
-                </Button>
+                <div className="flex gap-2">
+                    <Button asChild variant="outline">
+                        <Link href="/admin/blog/seed">
+                            <DatabaseZap className="mr-2 h-4 w-4" />
+                            Thêm dữ liệu mẫu
+                        </Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/admin/blog/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Viết bài mới
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <Card>

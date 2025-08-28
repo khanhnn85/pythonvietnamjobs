@@ -1,10 +1,13 @@
+
 'use server';
 
 import { filterJobsByRelevance } from '@/ai/flows/filter-jobs';
 import { extractCvInfo, type ExtractCvInfoOutput } from '@/ai/flows/extract-cv-info';
 import type { Job } from '@/lib/jobs';
 import { db } from '@/lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, writeBatch, query, where, getDocs } from 'firebase/firestore';
+import { seedBlogPosts } from '@/lib/blog-seed-data';
+import type { BlogPost } from '@/lib/blog';
 
 export async function filterJobs(query: string, jobs: Job[]) {
   if (!query) {
@@ -14,9 +17,6 @@ export async function filterJobs(query: string, jobs: Job[]) {
     const jobsForAI = jobs.map(({ id, ...job }) => job);
     const filteredJobs = await filterJobsByRelevance({ query, jobs: jobsForAI });
     
-    // The AI returns jobs matching the JobPosting schema, which doesn't include 'id'.
-    // We need to map the results back to our original jobs to retain the 'id'.
-    // A simple way is to match by title and company, assuming they are unique enough for this context.
     const originalJobsMap = new Map(jobs.map(job => [`${job.title}-${job.company}`, job]));
     
     const jobsWithIds = filteredJobs
@@ -76,5 +76,43 @@ export async function submitApplicationAction(applicationData: {
     } catch (error) {
         console.error("Error submitting application:", error);
         return { success: false, error: "Không thể nộp đơn. Vui lòng thử lại."};
+    }
+}
+
+export async function seedBlogDataAction(adminUserId: string, adminUserName: string) {
+    try {
+        const batch = writeBatch(db);
+        const postsCollection = collection(db, "blogPosts");
+        let count = 0;
+
+        for (const post of seedBlogPosts) {
+             // Check if a post with the same slug already exists
+            const q = query(postsCollection, where("slug", "==", post.slug));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                const docRef = doc(postsCollection);
+                const postData: Omit<BlogPost, 'id'> = {
+                    ...post,
+                    authorId: adminUserId,
+                    authorName: adminUserName,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                };
+                batch.set(docRef, postData);
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            await batch.commit();
+            return { success: true, message: `Đã thêm thành công ${count} bài viết mẫu vào Firestore.` };
+        } else {
+            return { success: true, message: "Tất cả các bài viết mẫu đã tồn tại trong Firestore. Không có gì được thêm." };
+        }
+
+    } catch (error) {
+        console.error("Error seeding blog data:", error);
+        return { success: false, error: "Đã xảy ra lỗi khi thêm dữ liệu mẫu." };
     }
 }
