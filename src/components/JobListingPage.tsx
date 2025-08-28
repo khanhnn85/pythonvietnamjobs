@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import type { Job } from '@/lib/jobs';
 import { Input } from '@/components/ui/input';
@@ -8,24 +8,60 @@ import { Button } from '@/components/ui/button';
 import JobList from '@/components/JobList';
 import { filterJobs } from '@/app/actions';
 
+const POSTED_JOBS_KEY = 'postedJobs';
+
 interface JobListingPageProps {
   initialJobs: Job[];
 }
 
 export default function JobListingPage({ initialJobs }: JobListingPageProps) {
-  const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  const [allJobs, setAllJobs] = useState<Job[]>(initialJobs);
+  const [displayedJobs, setDisplayedJobs] = useState<Job[]>(initialJobs);
   const [searchQuery, setSearchQuery] = useState('');
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const loadJobs = () => {
+      const jobsRaw = localStorage.getItem(POSTED_JOBS_KEY);
+      const postedJobs = jobsRaw ? JSON.parse(jobsRaw) : [];
+      const combinedJobs = [...postedJobs, ...initialJobs];
+      
+      // Remove duplicates, preferring the one from postedJobs (which is newer)
+      const uniqueJobs = Array.from(new Map(combinedJobs.map(job => [job.id, job])).values());
+
+      setAllJobs(uniqueJobs);
+      setDisplayedJobs(uniqueJobs);
+    };
+
+    loadJobs();
+
+    const handleStorageUpdate = (e: StorageEvent) => {
+        if (e.key === POSTED_JOBS_KEY) {
+            loadJobs();
+        }
+    };
+    
+    // Listen for jobs updated from PostJobForm in the same tab
+    window.addEventListener('jobsUpdated', loadJobs);
+    // Listen for changes from other tabs
+    window.addEventListener('storage', handleStorageUpdate);
+
+    return () => {
+        window.removeEventListener('jobsUpdated', loadJobs);
+        window.removeEventListener('storage', handleStorageUpdate);
+    };
+  }, [initialJobs]);
+
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-        setJobs(initialJobs);
+        setDisplayedJobs(allJobs);
         return;
     }
     startTransition(async () => {
-      const filteredJobs = await filterJobs(searchQuery, initialJobs);
-      setJobs(filteredJobs as Job[]);
+      const filteredJobs = await filterJobs(searchQuery, allJobs);
+      setDisplayedJobs(filteredJobs as Job[]);
     });
   };
 
@@ -56,7 +92,7 @@ export default function JobListingPage({ initialJobs }: JobListingPageProps) {
         </form>
       </div>
 
-      <JobList jobs={jobs} isLoading={isPending} />
+      <JobList jobs={displayedJobs} isLoading={isPending} />
     </div>
   );
 }
