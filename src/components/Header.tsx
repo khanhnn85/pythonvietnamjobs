@@ -24,7 +24,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
   { href: '/', label: 'Tất cả việc làm', icon: Briefcase },
-  { href: '/saved-jobs', label: 'Việc làm đã lưu', icon: Bookmark },
   { href: '/contact', label: 'Liên hệ', icon: Mail },
 ];
 

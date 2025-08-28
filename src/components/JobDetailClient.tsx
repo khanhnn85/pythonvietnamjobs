@@ -1,15 +1,13 @@
+
 "use client";
 
 import { useState } from 'react';
-import { Briefcase, MapPin, Bookmark, ArrowLeft } from 'lucide-react';
+import { Briefcase, MapPin, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import type { Job } from '@/lib/jobs';
-import { useSavedJobs } from '@/hooks/use-saved-jobs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 import ApplyDialog from '@/components/ApplyDialog';
 
 interface JobDetailClientProps {
@@ -17,9 +15,7 @@ interface JobDetailClientProps {
 }
 
 export default function JobDetailClient({ job }: JobDetailClientProps) {
-  const { isSaved, addJob, removeJob } = useSavedJobs();
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
-  const saved = isSaved(job.id);
 
   return (
     <>
@@ -47,25 +43,6 @@ export default function JobDetailClient({ job }: JobDetailClientProps) {
               </div>
             </div>
             <div className="flex-shrink-0 flex items-center gap-2">
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={() => {
-                  if (saved) {
-                    removeJob(job.id);
-                  } else {
-                    addJob(job.id);
-                  }
-                }}
-              >
-                <Bookmark
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    saved && 'fill-primary text-primary'
-                  )}
-                />
-                {saved ? 'Đã lưu' : 'Lưu công việc'}
-              </Button>
               <Button onClick={() => setIsApplyDialogOpen(true)} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 w-full sm:w-auto">
                   Ứng tuyển ngay
               </Button>
