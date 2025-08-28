@@ -5,16 +5,23 @@ import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Job } from '@/lib/jobs';
 import { PlusCircle, Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
+
+interface Application {
+    id: string;
+    jobId: string;
+    // other fields
+}
 
 export default function RecruiterDashboardPage() {
     const { user, loading } = useAuth();
     const [postedJobs, setPostedJobs] = useState<Job[]>([]);
+    const [applications, setApplications] = useState<Application[]>([]);
     const [isLoadingJobs, setIsLoadingJobs] = useState(true);
 
     useEffect(() => {
@@ -23,22 +30,42 @@ export default function RecruiterDashboardPage() {
             return;
         };
 
-        const q = query(collection(db, "jobs"), where("recruiterId", "==", user.uid));
-
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        // Fetch posted jobs
+        const jobsQuery = query(collection(db, "jobs"), where("recruiterId", "==", user.uid));
+        const unsubscribeJobs = onSnapshot(jobsQuery, (querySnapshot) => {
             const jobs: Job[] = [];
             querySnapshot.forEach((doc) => {
                 jobs.push({ id: doc.id, ...doc.data() } as Job);
             });
-             // Sort by creation date, newest first
             jobs.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
             setPostedJobs(jobs);
             setIsLoadingJobs(false);
         });
 
-        return () => unsubscribe();
+        // Fetch applications for this recruiter's jobs
+        const appQuery = query(collection(db, "applications"), where("recruiterId", "==", user.uid));
+        const unsubscribeApps = onSnapshot(appQuery, (querySnapshot) => {
+            const apps: Application[] = [];
+            querySnapshot.forEach((doc) => {
+                apps.push({ id: doc.id, ...doc.data() } as Application);
+            });
+            setApplications(apps);
+        });
+
+
+        return () => {
+            unsubscribeJobs();
+            unsubscribeApps();
+        }
 
     }, [user]);
+
+    const applicationCounts = useMemo(() => {
+        return applications.reduce((acc, app) => {
+            acc[app.jobId] = (acc[app.jobId] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+    }, [applications])
 
     if (loading) {
         return (
@@ -115,7 +142,7 @@ export default function RecruiterDashboardPage() {
                                     <TableCell className="font-medium">{job.title}</TableCell>
                                     <TableCell>{job.location}</TableCell>
                                     <TableCell className="text-center">
-                                        <span className="font-medium">0</span>
+                                        <span className="font-medium">{applicationCounts[job.id] || 0}</span>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="outline" size="sm" asChild>

@@ -1,7 +1,10 @@
 'use server';
 
 import { filterJobsByRelevance } from '@/ai/flows/filter-jobs';
+import { extractCvInfo, type ExtractCvInfoOutput } from '@/ai/flows/extract-cv-info';
 import type { Job } from '@/lib/jobs';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export async function filterJobs(query: string, jobs: Job[]) {
   if (!query) {
@@ -37,4 +40,40 @@ export async function filterJobs(query: string, jobs: Job[]) {
         job.location.toLowerCase().includes(lowerCaseQuery)
     );
   }
+}
+
+export async function extractInfoFromCvAction(cvDataUri: string): Promise<ExtractCvInfoOutput> {
+    try {
+        const result = await extractCvInfo({ cvDataUri });
+        return result;
+    } catch(error) {
+        console.error("Error extracting CV info with AI:", error);
+        return {
+            fullName: '',
+            email: '',
+            phoneNumber: '',
+        }
+    }
+}
+
+export async function submitApplicationAction(applicationData: {
+    jobId: string,
+    jobTitle: string,
+    recruiterId: string,
+    fullName: string,
+    email: string,
+    phoneNumber: string,
+    cvFileName: string,
+}) {
+    try {
+        await addDoc(collection(db, "applications"), {
+            ...applicationData,
+            submittedAt: new Date(),
+            status: 'new', // 'new', 'viewed', 'contacted'
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error submitting application:", error);
+        return { success: false, error: "Không thể nộp đơn. Vui lòng thử lại."};
+    }
 }
