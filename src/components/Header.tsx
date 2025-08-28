@@ -1,9 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User } from 'lucide-react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -82,6 +83,13 @@ function AuthNav() {
                 </p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/register-recruiter">
+                <Send className="mr-2 h-4 w-4" />
+                <span>Đăng ký làm nhà tuyển dụng</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOutUser}>
               <LogOut className="mr-2 h-4 w-4" />
