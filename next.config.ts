@@ -24,6 +24,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    // This is to allow the Next.js dev server to accept requests from the
+    // Cloud Workstations editor, which is on a different domain.
+    allowedDevOrigins: [
+      'https://*.cloudworkstations.dev',
+    ],
+  },
 };
 
 export default nextConfig;
