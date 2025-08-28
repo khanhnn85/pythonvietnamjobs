@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck } from 'lucide-react';
 
@@ -65,6 +65,12 @@ function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: s
 
 function AuthNav() {
     const { user, signInWithGoogle, signOutUser } = useAuth();
+    const router = useRouter();
+
+    const handleSignOut = async () => {
+        await signOutUser();
+        router.push('/');
+    };
 
     if (user) {
       const isRecruiter = user.role === 'recruiter';
@@ -126,9 +132,7 @@ function AuthNav() {
                 </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {
-                signOutUser();
-            }}>
+            <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Đăng xuất</span>
             </DropdownMenuItem>
