@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle } from 'lucide-react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -40,9 +40,14 @@ function Logo() {
   );
 }
 
-function NavLink({ href, label, icon: Icon }: { href: string; label: string; icon: React.ElementType }) {
+function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: string; label: string; icon: React.ElementType, isRecruiterLink?: boolean }) {
   const pathname = usePathname();
   const isActive = pathname === href;
+  const { user } = useAuth();
+  
+  if (isRecruiterLink && !user) {
+    return null;
+  }
 
   return (
     <Link href={href}>
@@ -67,22 +72,26 @@ function AuthNav() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setRequestStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
-
-            const handleStorageChange = () => {
+            const updateStatus = () => {
                 setRequestStatus(localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY));
-            };
+            }
+            updateStatus();
 
-            window.addEventListener('storage', handleStorageChange);
+            window.addEventListener('storage', updateStatus);
+            // Custom event to handle status changes within the same tab
+            window.addEventListener('recruiterStatusChanged', updateStatus);
+
 
             return () => {
-                window.removeEventListener('storage', handleStorageChange);
+                window.removeEventListener('storage', updateStatus);
+                window.removeEventListener('recruiterStatusChanged', updateStatus);
             };
         }
     }, [user]); // Rerun when user logs in/out
 
     if (user) {
       const isRequestPending = requestStatus === 'pending';
+      const isRecruiter = requestStatus === 'approved';
 
       return (
         <DropdownMenu>
@@ -106,22 +115,37 @@ function AuthNav() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild disabled={isRequestPending}>
-              <Link href="/register-recruiter" className={cn(isRequestPending && "cursor-not-allowed")}>
-                {isRequestPending ? (
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                ) : (
-                    <Send className="mr-2 h-4 w-4" />
-                )}
-                <span>
-                    {isRequestPending ? 'Đã gửi yêu cầu' : 'Đăng ký làm nhà tuyển dụng'}
-                </span>
-              </Link>
-            </DropdownMenuItem>
+            {isRecruiter ? (
+              <>
+                 <DropdownMenuItem asChild>
+                    <Link href="/recruiter-dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Bảng điều khiển</span>
+                    </Link>
+                 </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href="/post-job">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      <span>Đăng tin mới</span>
+                    </Link>
+                 </DropdownMenuItem>
+              </>
+            ) : (
+                <DropdownMenuItem asChild disabled={isRequestPending}>
+                <Link href="/register-recruiter" className={cn(isRequestPending && "cursor-not-allowed")}>
+                    {isRequestPending ? (
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                    ) : (
+                        <Send className="mr-2 h-4 w-4" />
+                    )}
+                    <span>
+                        {isRequestPending ? 'Đã gửi yêu cầu' : 'Đăng ký làm nhà tuyển dụng'}
+                    </span>
+                </Link>
+                </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => {
-                // Clear request status on sign out if desired
-                // localStorage.removeItem(RECRUITER_REQUEST_STATUS_KEY);
                 signOutUser();
             }}>
               <LogOut className="mr-2 h-4 w-4" />
@@ -140,17 +164,20 @@ function AuthNav() {
   }
 
 function DesktopNav() {
+  const recruiterNavLink = { href: '/recruiter-dashboard', label: 'Dành cho Nhà tuyển dụng', icon: Briefcase, isRecruiterLink: true };
   return (
     <nav className="hidden md:flex items-center gap-4">
       {navLinks.map((link) => (
         <NavLink key={link.href} {...link} />
       ))}
+      <NavLink {...recruiterNavLink} />
     </nav>
   );
 }
 
 function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const recruiterNavLink = { href: '/recruiter-dashboard', label: 'Dành cho Nhà tuyển dụng', icon: Briefcase, isRecruiterLink: true };
 
   return (
     <div className="md:hidden">
@@ -168,7 +195,7 @@ function MobileNav() {
             </SheetHeader>
           <div className="p-4">
             <nav className="mt-2 flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {[...navLinks, recruiterNavLink].map((link) => (
                 <div key={link.href} onClick={() => setIsOpen(false)}>
                     <NavLink {...link} />
                 </div>

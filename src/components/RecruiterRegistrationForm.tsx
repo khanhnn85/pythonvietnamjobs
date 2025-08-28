@@ -36,13 +36,11 @@ const RECRUITER_REQUEST_STATUS_KEY = 'recruiterRequestStatus';
 
 export default function RecruiterRegistrationForm() {
     const { toast } = useToast();
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [requestStatus, setRequestStatus] = useState<string | null>(null);
 
     useEffect(() => {
         const status = localStorage.getItem(RECRUITER_REQUEST_STATUS_KEY);
-        if (status === 'pending') {
-            setIsSubmitted(true);
-        }
+        setRequestStatus(status);
     }, []);
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -58,7 +56,10 @@ export default function RecruiterRegistrationForm() {
         console.log('Recruiter registration submitted:', values);
         
         localStorage.setItem(RECRUITER_REQUEST_STATUS_KEY, 'pending');
-        setIsSubmitted(true);
+        setRequestStatus('pending');
+
+        // Dispatch a custom event to notify other components (like the Header) of the change
+        window.dispatchEvent(new CustomEvent('recruiterStatusChanged'));
 
         toast({
             title: 'Yêu cầu đã được gửi!',
@@ -67,7 +68,20 @@ export default function RecruiterRegistrationForm() {
         form.reset();
     }
 
-    if (isSubmitted) {
+    if (requestStatus === 'approved') {
+        return (
+             <Card>
+                <CardContent className="p-6 text-center">
+                    <h3 className="text-xl font-semibold">Tài khoản của bạn đã được duyệt</h3>
+                    <p className="mt-2 text-muted-foreground">
+                       Chúc mừng! Bạn có thể bắt đầu đăng tin tuyển dụng ngay bây giờ.
+                    </p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (requestStatus === 'pending') {
         return (
              <Card>
                 <CardContent className="p-6 text-center">
