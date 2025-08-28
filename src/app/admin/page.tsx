@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
+import { Users, CheckSquare } from 'lucide-react';
 
 // --- QUAN TRỌNG: Đây là danh sách email admin được mô phỏng ---
 // Trong một ứng dụng thực tế, bạn sẽ quản lý quyền admin trong cơ sở dữ liệu.
@@ -40,6 +41,10 @@ export default function AdminPage() {
             localStorage.setItem(FAKE_REQUESTS_KEY, JSON.stringify(FAKE_REQUESTS));
         }
     }, []);
+
+    const pendingRequestsCount = useMemo(() => {
+        return requests.filter(req => req.status === 'pending').length;
+    }, [requests]);
 
     const handleApprove = (requestId: string) => {
         const updatedRequests = requests.map(req =>
@@ -91,16 +96,48 @@ export default function AdminPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
-                <h1 className="text-3xl font-bold tracking-tight">Bảng điều khiển Admin (Mô phỏng)</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Bảng điều khiển Admin</h1>
                 <p className="text-muted-foreground mt-2">Duyệt các yêu cầu đăng ký làm nhà tuyển dụng.</p>
                  <CardDescription className="mt-2 text-sm italic">
-                    Lưu ý: Đây là trang mô phỏng. Trong một ứng dụng thực tế, trang này sẽ được bảo vệ và dữ liệu sẽ đến từ cơ sở dữ liệu.
+                    Lưu ý: Đây là trang mô phỏng. Dữ liệu được lưu trong localStorage của trình duyệt.
                 </CardDescription>
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Yêu cầu đang chờ xử lý
+                        </CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{pendingRequestsCount}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Tổng số yêu cầu cần được duyệt
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Tổng số yêu cầu
+                        </CardTitle>
+                         <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                     <CardContent>
+                        <div className="text-2xl font-bold">{requests.length}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Bao gồm cả các yêu cầu đã được duyệt
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
+
             <Card>
                 <CardHeader>
-                    <CardTitle>Yêu cầu đang chờ xử lý</CardTitle>
+                    <CardTitle>Danh sách yêu cầu đăng ký</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -118,8 +155,8 @@ export default function AdminPage() {
                                     <TableCell className="font-medium">{req.companyName}</TableCell>
                                     <TableCell>{req.userEmail}</TableCell>
                                     <TableCell>
-                                        <span className={`px-2 py-1 text-xs rounded-full ${
-                                            req.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800'
+                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                            req.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
                                         }`}>
                                             {req.status === 'pending' ? 'Đang chờ' : 'Đã duyệt'}
                                         </span>
@@ -140,3 +177,5 @@ export default function AdminPage() {
         </div>
     );
 }
+
+    
