@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck, LifeBuoy } from 'lucide-react';
+import { Code2, Menu, Briefcase, Bookmark, Mail, LogOut, User, Send, CheckCircle, PlusCircle, LayoutDashboard, ShieldCheck, LifeBuoy, BookOpen } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
   { href: '/', label: 'Tất cả việc làm', icon: Briefcase },
+  { href: '/blog', label: 'Blog', icon: BookOpen },
   { href: '/guide', label: 'Hướng dẫn', icon: LifeBuoy },
 ];
 
@@ -38,7 +39,7 @@ function Logo() {
 
 function NavLink({ href, label, icon: Icon, isRecruiterLink = false }: { href: string; label: string; icon: React.ElementType, isRecruiterLink?: boolean }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname.startsWith(href) && (href !== '/' || pathname === '/');
   const { user } = useAuth();
   
   if (isRecruiterLink && (!user || user.role !== 'recruiter')) {
@@ -67,8 +68,7 @@ function AuthNav() {
     const router = useRouter();
 
     const handleSignOut = async () => {
-        await signOutUser();
-        router.push('/');
+        await signOutUser(router);
     };
 
     const handleSignIn = async () => {

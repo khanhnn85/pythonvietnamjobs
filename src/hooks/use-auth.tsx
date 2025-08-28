@@ -32,7 +32,7 @@ interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
   signInWithGoogle: (router: AppRouterInstance) => Promise<void>;
-  signOutUser: () => Promise<void>;
+  signOutUser: (router: AppRouterInstance) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const initialRole = isUserAdmin ? 'admin' : 'user';
                 try {
                     await setDoc(userRef, {
+                        uid: firebaseUser.uid,
                         email: firebaseUser.email,
                         displayName: firebaseUser.displayName,
                         photoURL: firebaseUser.photoURL,
@@ -130,13 +131,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signOutUser = async () => {
+  const signOutUser = async (router: AppRouterInstance) => {
     try {
       await signOut(auth);
       toast({
         title: "Đã đăng xuất",
         description: "Bạn đã đăng xuất thành công.",
       });
+      router.push('/');
     } catch (error) {
       console.error("Lỗi đăng xuất:", error);
       toast({

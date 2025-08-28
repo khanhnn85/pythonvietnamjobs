@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Users, CheckSquare } from 'lucide-react';
+import { Users, CheckSquare, BookText } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, doc, writeBatch } from "firebase/firestore";
 import { formatDistanceToNow } from 'date-fns';
@@ -111,14 +111,14 @@ export default function AdminPage() {
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight">Bảng điều khiển Admin</h1>
-                <p className="text-muted-foreground mt-2">Duyệt các yêu cầu đăng ký làm nhà tuyển dụng.</p>
+                <p className="text-muted-foreground mt-2">Duyệt yêu cầu và quản lý nội dung.</p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Yêu cầu đang chờ xử lý
+                            Yêu cầu đang chờ
                         </CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
@@ -143,12 +143,28 @@ export default function AdminPage() {
                         </p>
                     </CardContent>
                 </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Quản lý Blog
+                        </CardTitle>
+                         <BookText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                     <CardContent>
+                       <p className="text-sm text-muted-foreground mb-4">Thêm, sửa hoặc xóa các bài viết trên blog.</p>
+                       <Button asChild size="sm">
+                            <Link href="/admin/blog">
+                                Đi đến quản lý Blog
+                            </Link>
+                       </Button>
+                    </CardContent>
+                </Card>
             </div>
 
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Danh sách yêu cầu đăng ký</CardTitle>
+                    <CardTitle>Danh sách yêu cầu đăng ký nhà tuyển dụng</CardTitle>
                 </CardHeader>
                 <CardContent>
                      {isLoadingData ? <p>Đang tải danh sách...</p> : (
