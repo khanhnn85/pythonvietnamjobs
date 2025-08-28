@@ -6,17 +6,22 @@ Chào mừng bạn đến với VN Jobs Hub, một nền tảng tìm kiếm vi�
 
 ## Giới thiệu
 
-VN Jobs Hub là một ứng dụng web được xây dựng bằng Next.js, được thiết kế để cung cấp trải nghiệm mượt mà và hiệu quả cho người dùng tìm kiếm việc làm trong lĩnh vực Python. Ứng dụng tích hợp trí tuệ nhân tạo (AI) để cung cấp kết quả tìm kiếm phù hợp và chính xác hơn.
+VN Jobs Hub là một ứng dụng web được xây dựng bằng Next.js, được thiết kế để cung cấp trải nghiệm mượt mà và hiệu quả cho người dùng tìm kiếm việc làm và nhà tuyển dụng. Ứng dụng tích hợp trí tuệ nhân tạo (AI) để cung cấp kết quả tìm kiếm phù hợp và chính xác hơn.
 
 ## Các tính năng chính
 
+### Dành cho người tìm việc
 - **Danh sách việc làm**: Duyệt qua danh sách các công việc Python mới nhất từ các công ty hàng đầu tại Việt Nam.
-- **Tìm kiếm thông minh bằng AI**: Sử dụng bộ lọc được hỗ trợ bởi AI để tìm các công việc phù hợp nhất với kỹ năng và sở thích của bạn, vượt ra ngoài việc khớp từ khóa đơn giản.
+- **Tìm kiếm thông minh bằng AI**: Sử dụng bộ lọc được hỗ trợ bởi AI để tìm các công việc phù hợp nhất với kỹ năng và sở thích của bạn.
 - **Lưu công việc**: Đánh dấu các công việc bạn quan tâm để xem lại sau.
 - **Xác thực người dùng**: Đăng nhập an toàn bằng tài khoản Google của bạn thông qua Firebase Authentication.
 - **Thiết kế đáp ứng (Responsive)**: Giao diện được tối ưu hóa cho cả thiết bị máy tính và di động.
 - **Chi tiết công việc**: Xem mô tả chi tiết và yêu cầu cho từng vị trí.
-- **Trang liên hệ**: Dễ dàng gửi câu hỏi hoặc phản hồi qua biểu mẫu liên hệ.
+
+### Dành cho nhà tuyển dụng
+- **Đăng ký làm nhà tuyển dụng**: Gửi yêu cầu để có quyền đăng tin tuyển dụng sau khi đăng nhập.
+- **Đăng tin tuyển dụng**: Nhà tuyển dụng đã được duyệt có thể dễ dàng đăng các vị trí tuyển dụng mới thông qua một biểu mẫu trực quan.
+- **Bảng điều khiển Nhà tuyển dụng**: Quản lý các tin đã đăng và xem các ứng viên tiềm năng (tính năng đang phát triển).
 
 ## Công nghệ sử dụng
 
@@ -77,7 +82,7 @@ Dự án này được xây dựng trên một ngăn xếp công nghệ hiện �
 
 ## Cấu trúc dự án
 
-- `/src/app`: Chứa các tuyến đường và trang chính của ứng dụng theo App Router của Next.js.
+- `/src/app`: Chứa các tuyến đường và trang chính của ứng dụng theo App Router của Next.js, bao gồm `/jobs`, `/contact`, `/register-recruiter`, `/post-job`, và `/recruiter-dashboard`.
 - `/src/components`: Chứa các thành phần React có thể tái sử dụng.
 - `/src/lib`: Chứa các hàm tiện ích và cấu hình Firebase.
 - `/src/hooks`: Chứa các custom hooks của React.
