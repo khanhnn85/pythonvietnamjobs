@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'VN Jobs Hub',
+  title: 'Python Viet Nam Jobs',
   description: 'Tìm công việc Python tiếp theo của bạn tại Việt Nam.',
 };
 

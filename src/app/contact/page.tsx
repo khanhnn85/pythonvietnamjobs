@@ -1,7 +1,7 @@
 import ContactForm from '@/components/ContactForm';
 
 export const metadata = {
-  title: 'Liên hệ | VN Jobs Hub',
+  title: 'Liên hệ | Python Viet Nam Jobs',
   description: 'Liên hệ với chúng tôi để được hỗ trợ hoặc giải đáp thắc mắc.',
 };
 

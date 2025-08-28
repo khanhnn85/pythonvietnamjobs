@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
   }
 
   return {
-    title: `${job.title} tại ${job.company} | VN Jobs Hub`,
+    title: `${job.title} tại ${job.company} | Python Viet Nam Jobs`,
     description: job.description,
   };
 }

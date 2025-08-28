@@ -32,7 +32,7 @@ function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2">
       <Code2 className="h-8 w-8 text-primary" />
-      <span className="text-xl font-bold tracking-tight">VN Jobs Hub</span>
+      <span className="text-xl font-bold tracking-tight">Python Viet Nam Jobs</span>
     </Link>
   );
 }

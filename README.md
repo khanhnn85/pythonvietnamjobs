@@ -1,12 +1,12 @@
-# VN Jobs Hub
+# Python Viet Nam Jobs
 
-Chào mừng bạn đến với VN Jobs Hub, một nền tảng tìm kiếm việc làm hiện đại được thiết kế để kết nối các nhà phát triển Python tài năng với các cơ hội việc làm hàng đầu tại Việt Nam.
+Chào mừng bạn đến với Python Viet Nam Jobs, một nền tảng tìm kiếm việc làm hiện đại được thiết kế để kết nối các nhà phát triển Python tài năng với các cơ hội việc làm hàng đầu tại Việt Nam.
 
-![VN Jobs Hub Screenshot](./public/screenshot.png)
+![Python Viet Nam Jobs Screenshot](./public/screenshot.png)
 
 ## Giới thiệu
 
-VN Jobs Hub là một ứng dụng web được xây dựng bằng Next.js, được thiết kế để cung cấp trải nghiệm mượt mà và hiệu quả cho người dùng tìm kiếm việc làm và nhà tuyển dụng. Ứng dụng tích hợp trí tuệ nhân tạo (AI) để cung cấp kết quả tìm kiếm phù hợp và chính xác hơn.
+Python Viet Nam Jobs là một ứng dụng web được xây dựng bằng Next.js, được thiết kế để cung cấp trải nghiệm mượt mà và hiệu quả cho người dùng tìm kiếm việc làm và nhà tuyển dụng. Ứng dụng tích hợp trí tuệ nhân tạo (AI) để cung cấp kết quả tìm kiếm phù hợp và chính xác hơn.
 
 ## Các tính năng chính
 
